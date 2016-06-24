@@ -60,6 +60,7 @@ temp
 .fake
 .vs
 *.js
+*.js.map
 release.cmd
 paket-files
 issueList.md

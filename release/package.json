@@ -92,11 +92,17 @@
 		"onCommand:paket.RemovePackage",
 		"onCommand:paket.RemovePackageCurrent"
 	],
+	"scripts": {
+		"build": "fable ../src/paket.fsx -s -o ../release -m commonjs"
+	},
 	"devDependencies": {
-		"vscode": "*"
+		"vscode": "*",
+		"fable-compiler": "*",
+		"fable-import-vscode": "*"
 	},
 	"dependencies": {
 		"path": "*",
-        "toml":"*"
+        "toml":"*",
+		"fable-core": "*"
 	}
 }

@@ -13,13 +13,6 @@ open Fake.ProcessHelper
 open Fake.ReleaseNotesHelper
 open Fake.ZipHelper
 
-#if MONO
-#else
-#load "src/vscode-bindings.fsx"
-#load "src/paket.fs"
-#load "src/main.fs"
-#endif
-
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -76,24 +69,10 @@ Target "Clean" (fun _ ->
     CopyFiles "release" ["README.md"; "LICENSE.md"; "RELEASE_NOTES.md"]
 )
 
-#if MONO
-Target "BuildGenerator" (fun () ->
-    [ __SOURCE_DIRECTORY__ </> "src" </> "Ionide.Paket.fsproj" ]
-    |> MSBuildDebug "" "Rebuild"
-    |> Log "AppBuild-Output: "
+Target "Build" ( fun _ ->
+    run npmTool "install" "release"
+    run npmTool "run build" "release"
 )
-
-Target "RunGenerator" (fun () ->
-    (TimeSpan.FromMinutes 5.0)
-    |> ProcessHelper.ExecProcess (fun p ->
-        p.FileName <- __SOURCE_DIRECTORY__ </> "src" </> "bin" </> "Debug" </> "Ionide.Paket.exe" )
-    |> ignore
-)
-#else
-Target "RunScript" (fun () ->
-    Ionide.VSCode.Generator.translateModules typeof<Ionide.VSCode.Paket> (".." </> "release" </> "paket.js")
-)
-#endif
 
 Target "InstallVSCE" ( fun _ ->
     killProcess "npm"
@@ -171,16 +150,9 @@ Target "ReleaseGitHub" (fun _ ->
 Target "Default" DoNothing
 Target "Release" DoNothing
 
-#if MONO
 "Clean"
-    ==> "BuildGenerator"
-    ==> "RunGenerator"
-    ==> "Default"
-#else
-"Clean"
-    ==> "RunScript"
-    ==> "Default"
-#endif
+  ==> "Build"
+  ==> "Default"
 
 "Default"
   ==> "SetVersion"
