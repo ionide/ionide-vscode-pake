@@ -152,6 +152,8 @@ let RemovePackageCurrent () =
     else
         vscode.window.showErrorMessage "fsproj file needs to be opened" |> ignore
 
+let UpdatePaketToAlpha () = Helpers.Process.spawn bootstrapperLocation "mono" "prerelease"
+
 let activate(context: vscode.ExtensionContext) =
     let registerCommand com (f: unit->unit) =
         vscode.commands.registerCommand(com, unbox f)
@@ -174,3 +176,5 @@ let activate(context: vscode.ExtensionContext) =
     registerCommand "paket.RemovePackage" RemovePackage
     registerCommand "paket.RemovePackageCurrent" RemovePackageCurrent
     registerCommand "paket.GenerateIncludeScripts" GenerateIncludeScripts
+
+    registerCommand "paket.UpdatePaketToAlpha" UpdatePaketToAlpha
