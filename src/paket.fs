@@ -15,6 +15,9 @@ let (</>) a b =
     else a + "/" + b
 
 let localPaketDir = vscode.workspace.rootPath </> ".paket"
+
+let isProject (fileName:string) = fileName.EndsWith(".fsproj") || fileName.EndsWith(".csproj") || fileName.EndsWith(".vbproj")
+
 let localPaket    = localPaketDir </>  "paket.exe"
 let localBootstrapper = localPaketDir </> "paket.bootstrapper.exe"
 let outputChannel = vscode.window.createOutputChannel "Paket"
@@ -79,13 +82,13 @@ let Add () =
 
 let AddToCurrent () =
     let fn = vscode.window.activeTextEditor.document.fileName
-    if fn.EndsWith(".fsproj") then
+    if isProject fn then
         (vscode.window.showInputBox inputOptions)
         |> Helpers.Promise.success (fun n ->
             if Helpers.JS.isDefined n then sprintf "add nuget %s project \"%s\"" n fn |> spawnPaket)
         |> ignore
     else
-        vscode.window.showErrorMessage "fsproj file needs to be opened" |> ignore
+        vscode.window.showErrorMessage "project file needs to be opened" |> ignore
 
 let UpdateGroup () =
     "show-groups -s"
@@ -110,7 +113,7 @@ let UpdatePackage () =
 
 let UpdatePackageCurrent () =
     let fn = vscode.window.activeTextEditor.document.fileName
-    if fn.EndsWith(".fsproj") then
+    if isProject fn then
         "show-installed-packages -s"
         |> execPaket
         |> Helpers.Promise.success (handlePaketList)
@@ -122,7 +125,7 @@ let UpdatePackageCurrent () =
                 sprintf "update nuget %s project \"%s\" group %s" name fn group |> spawnPaket)
         |> ignore
     else
-        vscode.window.showErrorMessage "fsproj file needs to be opened" |> ignore
+        vscode.window.showErrorMessage "project file needs to be opened" |> ignore
 
 let RemovePackage () =
     "show-installed-packages -s"
@@ -138,7 +141,7 @@ let RemovePackage () =
 
 let RemovePackageCurrent () =
     let fn = vscode.window.activeTextEditor.document.fileName
-    if fn.EndsWith(".fsproj") then
+    if isProject fn then
         "show-installed-packages -s"
         |> execPaket
         |> Helpers.Promise.success (handlePaketList)
@@ -150,7 +153,7 @@ let RemovePackageCurrent () =
                 sprintf "remove nuget %s project \"%s\" group %s" name fn group |> spawnPaket)
         |> ignore
     else
-        vscode.window.showErrorMessage "fsproj file needs to be opened" |> ignore
+        vscode.window.showErrorMessage "project file needs to be opened" |> ignore
 
 let activate(context: vscode.ExtensionContext) =
     let registerCommand com (f: unit->unit) =
