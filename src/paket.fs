@@ -42,15 +42,13 @@ let private spawnPaket cmd =
 
     outputChannel.clear ()
     outputChannel.append (location+"\n")
-    vscode.window.showInformationMessage ("Paket started", "Open")
-    |> Helpers.Promise.map(fun n ->
-        if n = "Open" then outputChannel.show (2 |> unbox) )
-    |> ignore
+    let startedMessage = vscode.window.setStatusBarMessage "Paket started"
 
     Helpers.Process.spawnWithNotification location "mono" cmd outputChannel
     |> Helpers.Process.onExit(fun (code) ->
+        startedMessage.dispose() |> ignore
         if code.ToString() ="0" then
-            vscode.window.showInformationMessage "Paket completed" |> ignore
+            vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
         else
             vscode.window.showErrorMessage "Paket failed" |> ignore)
     |> ignore
