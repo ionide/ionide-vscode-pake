@@ -228,48 +228,30 @@ let private createDependenciesProvider () =
                 promise {
                     let range = doc.getWordRangeAtPosition pos
                     let line = doc.getText( Range(pos.line,0.,pos.line,1000.) )
-                    let tags = line.Split(' ') |> Array.filter ((<>) "")
+                    let tags = line.Split(' ') |> Array.filter ((<>) "") |> Array.toList
                     let word = doc.getText range
                     let! response =
-                        if tags.Length = 1 then
-                            ["nuget"; "git"; "github"; "http"; "gist"; "versions"; "source"; "group";
-                             "references: strinct"; "framework:"; "content: none"; "copy_content_to_output_dir: always";
-                             "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "lowest_matching:"]
-                            |> String.concat "\n"
-                            |> Promise.lift
-                        elif tags.[0] = "nuget" && JS.isDefined range && tags.Length = 2 then
-                            send word
-                        elif tags.[0] = "source" && JS.isDefined range && tags.Length = 2 then
-                            [ "https://api.nuget.org/v3/index.json"
-                              "https://nuget.org/api/v2"]
-                            |> String.concat "\n"
-                            |> Promise.lift
-                        elif tags.[0] = "framework:" && JS.isDefined range && tags.Length = 2 then
-                            [ "net35"; "net40"; "net45"; "net46"; "auto-detect"]
-                            |> String.concat "\n"
-                            |> Promise.lift
-                        elif tags.[0] = "redirects:" && JS.isDefined range && tags.Length = 2 then
-                            [ "on"; "off"; "force"; ]
-                            |> String.concat "\n"
-                            |> Promise.lift
-                        elif tags.[0] = "strategy:" && JS.isDefined range && tags.Length = 2 then
-                            [ "min"; "max"; ]
-                            |> String.concat "\n"
-                            |> Promise.lift
-                        elif tags.[0] = "lowest_matching:" && JS.isDefined range && tags.Length = 2 then
-                            [ "true"; "false"; ]
-                            |> String.concat "\n"
-                            |> Promise.lift
-                        elif tags.[0] = "import_targets:" && JS.isDefined range && tags.Length = 2 then
-                            [ "true"; "false"; ]
-                            |> String.concat "\n"
-                            |> Promise.lift
-                        elif tags.[0] = "copy_local:" && JS.isDefined range && tags.Length = 2 then
-                            [ "true"; "false"; ]
-                            |> String.concat "\n"
-                            |> Promise.lift
-                        else
-                            Promise.lift ""
+                        let isRangeDefined = JS.isDefined range
+                        let (|PaketTag|_|) items =
+                            match items, isRangeDefined with
+                            | [ word; _ ], true -> Some(PaketTag word)
+                            | _ -> None
+                        let concatAndLift = String.concat "\n" >> Promise.lift
+                        match tags with
+                        | [ _ ] ->
+                            ["nuget"; "git"; "github"; "http"; "gist"; "versions"; "source"; "group"
+                             "references: strinct"; "framework:"; "content: none"; "copy_content_to_output_dir: always"
+                             "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "lowest_matching:" ]
+                            |> concatAndLift
+                        | PaketTag "nuget" -> send word
+                        | PaketTag "source" -> [ "https://api.nuget.org/v3/index.json"; "https://nuget.org/api/v2" ] |> concatAndLift
+                        | PaketTag "framework:" -> [ "net35"; "net40"; "net45"; "net46"; "auto-detect" ] |> concatAndLift
+                        | PaketTag "redirects:" -> [ "on"; "off"; "force" ] |> concatAndLift
+                        | PaketTag "strategy:" -> [ "min"; "max" ] |> concatAndLift
+                        | PaketTag "lowest_matching:" -> [ "true"; "false" ] |> concatAndLift
+                        | PaketTag "import_targets:" -> [ "true"; "false" ] |> concatAndLift
+                        | PaketTag "copy_local:" -> [ "true"; "false" ] |> concatAndLift
+                        | _ -> Promise.lift ""
                     return
                         response.Split '\n'
                         |> Seq.map(fun n -> CompletionItem <| n.Trim())
