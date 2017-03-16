@@ -246,13 +246,14 @@ let private createDependenciesProvider () =
                         | [ _ ] ->
                             ["nuget"; "git"; "github"; "http"; "gist"; "versions"; "source"; "group"
                              "references: strict"; "framework:"; "content: none"; "copy_content_to_output_dir: always"
-                             "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "lowest_matching:" ]
+                             "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "lowest_matching:"; "generate_load_scripts" ]
                             |> concatAndLift
                         | PaketTag "nuget" -> send word
                         | PaketTag "source" -> [ "https://api.nuget.org/v3/index.json"; "https://nuget.org/api/v2" ] |> concatAndLift
                         | PaketTag "framework:" -> [ "net35"; "net40"; "net45"; "net46"; "auto-detect" ] |> concatAndLift
                         | PaketTag "redirects:" -> [ "on"; "off"; "force" ] |> concatAndLift
                         | PaketTag "strategy:" -> [ "min"; "max" ] |> concatAndLift
+                        | PaketTag "generate_load_scripts:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "lowest_matching:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "import_targets:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "copy_local:" -> [ "true"; "false" ] |> concatAndLift
