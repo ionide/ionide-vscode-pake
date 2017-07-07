@@ -277,7 +277,36 @@ let private createDependenciesProvider () =
                             |> concatAndLift
                         | PaketTag "nuget" -> send word
                         | PaketTag "source" -> [ "https://api.nuget.org/v3/index.json"; "https://nuget.org/api/v2" ] |> concatAndLift
-                        | PaketTag "framework:" -> [ "net35"; "net40"; "net45"; "net46"; "auto-detect" ] |> concatAndLift
+                        | PaketTag "framework:" ->
+                            [ 
+                                "net35"
+                                "net40"
+                                "net45"
+                                "net451"
+                                "net452"
+                                "net46"
+                                "net461"
+                                "net462"
+                                "net47"
+                                "netstandard1.0"
+                                "netstandard1.1"
+                                "netstandard1.2"
+                                "netstandard1.3"
+                                "netstandard1.4"
+                                "netstandard1.5"
+                                "netstandard1.6"
+                                "netstandard2.0"
+                                "netcoreapp1.0"
+                                "netcoreapp1.1"
+                                "netcoreapp2.0"
+                                "uap"
+                                "wp7"
+                                "wp75"
+                                "wp8"
+                                "wp81"
+                                "wpa81"
+                                "auto-detect" ]
+                                |> concatAndLift
                         | PaketTag "redirects:" -> [ "on"; "off"; "force" ] |> concatAndLift
                         | PaketTag "strategy:" -> [ "min"; "max" ] |> concatAndLift
                         | PaketTag "generate_load_scripts:" -> [ "true"; "false" ] |> concatAndLift
