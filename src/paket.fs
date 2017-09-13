@@ -320,6 +320,7 @@ let private createDependenciesProvider () =
                         | PaketTag "lowest_matching:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "import_targets:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "copy_local:" -> [ "true"; "false" ] |> concatAndLift
+                        | PaketTag "storage:" -> [ "none"; "packages" ] |> concatAndLift
                         | _ -> Promise.lift ""
                     return
                         response.Split '\n'
