@@ -280,7 +280,8 @@ let private createDependenciesProvider () =
                         | [ _ ] ->
                             ["nuget"; "git"; "github"; "http"; "gist"; "clitool"; "versions"; "source"; "group"
                              "references: strict"; "framework:"; "content: none"; "copy_content_to_output_dir: always"
-                             "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "lowest_matching:"; "generate_load_scripts" ]
+                             "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "lowest_matching:"; "generate_load_scripts"
+                             "restriction:" ]
                             |> concatAndLift
                         | PaketTag "nuget" -> send word
                         | PaketTag "source" -> [ "https://api.nuget.org/v3/index.json"; "https://nuget.org/api/v2" ] |> concatAndLift
