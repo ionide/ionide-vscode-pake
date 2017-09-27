@@ -140,6 +140,7 @@
         "onCommand:paket.ConvertFromNuget",
         "onCommand:paket.Simplify",
         "onCommand:paket.Add",
+        "onCommand:paket.Why",
         "onCommand:paket.AddToCurrent",
         "onCommand:paket.UpdateGroup",
         "onCommand:paket.UpdatePackage",
