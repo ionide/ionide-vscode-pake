@@ -1,35 +1,35 @@
 {
-	"name": "Ionide-Paket",
-	"version": "1.7.3",
-	"publisher": "Ionide",
-	"description": "Paket (alternative NuGet client) Support",
-	"categories":[
-		 "Other"
-	],
-	"license":"SEE LICENSE IN LICENSE.md",
-	"icon": "images/logo.png",
-	"bugs": {
-		"url": "https://github.com/ionide/ionide-vscode-paket/issues"
-	},
-	"homepage": "http://ionide.io",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/ionide/ionide-vscode-paket.git"
-	},
-	"engines": {
-		"vscode": "^0.10.0"
-	},
-	"main": "./paket",
-	"contributes": {
-		"languages": [{
+    "name": "Ionide-Paket",
+    "version": "1.7.3",
+    "publisher": "Ionide",
+    "description": "Paket (alternative NuGet client) Support",
+    "categories": [
+        "Other"
+    ],
+    "license": "SEE LICENSE IN LICENSE.md",
+    "icon": "images/logo.png",
+    "bugs": {
+        "url": "https://github.com/ionide/ionide-vscode-paket/issues"
+    },
+    "homepage": "http://ionide.io",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ionide/ionide-vscode-paket.git"
+    },
+    "engines": {
+        "vscode": "^0.10.0"
+    },
+    "main": "./paket",
+    "contributes": {
+        "languages": [{
             "id": "paket-dependencies",
             "aliases": ["paket.dependencies"],
             "extensions": ["paket.dependencies"]
-        },{
+        }, {
             "id": "paket-lock",
             "aliases": ["paket.lock"],
             "extensions": ["paket.lock"]
-        },{
+        }, {
             "id": "paket-references",
             "aliases": ["paket.references"],
             "extensions": ["paket.references"]
@@ -38,113 +38,116 @@
             "language": "paket-dependencies",
             "scopeName": "source.paket.dependencies",
             "path": "./grammar/paket.dependencies.json"
-        },{
+        }, {
             "language": "paket-lock",
             "scopeName": "source.paket.lock",
             "path": "./grammar/paket.lock.json"
         }],
-		"commands": [{
-			"command": "paket.Init",
-			"title": "Paket: Init"
-		},{
-			"command": "paket.Install",
-			"title": "Paket: Install"
-		},{
-			"command": "paket.Update",
-			"title": "Paket: Update"
-		},{
-			"command": "paket.Outdated",
-			"title": "Paket: Outdated"
-		},{
-			"command": "paket.Restore",
-			"title": "Paket: Restore"
-		},{
-			"command": "paket.AutoRestoreOn",
-			"title": "Paket: AutoRestore On"
-		},{
-			"command": "paket.AutoRestoreOff",
-			"title": "Paket: AutoRestore Off"
-		},{
-			"command": "paket.ConvertFromNuget",
-			"title": "Paket: Convert From Nuget"
-		},{
-			"command": "paket.Simplify",
-			"title": "Paket: Simplify"
-		},{
-			"command": "paket.Add",
-			"title": "Paket: Add NuGet Package"
-		},{
-			"command": "paket.AddToCurrent",
-			"title": "Paket: Add NuGet Package (to current project)"
-		},{
-			"command": "paket.UpdateGroup",
-			"title": "Paket: Update Group"
-		},{
-			"command": "paket.UpdatePackage",
-			"title": "Paket: Update NuGet Package "
-		},{
-			"command": "paket.UpdatePackageCurrent",
-			"title": "Paket: Update NuGet Package (from current project)"
-		},{
-			"command": "paket.RemovePackage",
-			"title": "Paket: Remove NuGet Package "
-		},{
-			"command": "paket.RemovePackageCurrent",
-			"title": "Paket: Remove NuGet Package (from current project)"
-		},
-		{
-			"command": "paket.GenerateIncludeScripts",
-			"title": "Paket: Generate Include Scripts"
-		},
-		{
-			"command": "paket.UpdatePaketToPrerelease",
-			"title": "Paket: Use Paket prerelease"
-		}],
-		"outputChannels": [
-			"Paket"
-		],
-		"configuration": {
+        "commands": [{
+                "command": "paket.Init",
+                "title": "Paket: Init"
+            }, {
+                "command": "paket.Install",
+                "title": "Paket: Install"
+            }, {
+                "command": "paket.Update",
+                "title": "Paket: Update"
+            }, {
+                "command": "paket.Outdated",
+                "title": "Paket: Outdated"
+            }, {
+                "command": "paket.Restore",
+                "title": "Paket: Restore"
+            }, {
+                "command": "paket.AutoRestoreOn",
+                "title": "Paket: AutoRestore On"
+            }, {
+                "command": "paket.AutoRestoreOff",
+                "title": "Paket: AutoRestore Off"
+            }, {
+                "command": "paket.ConvertFromNuget",
+                "title": "Paket: Convert From Nuget"
+            }, {
+                "command": "paket.Simplify",
+                "title": "Paket: Simplify"
+            }, {
+                "command": "paket.Add",
+                "title": "Paket: Add NuGet Package"
+            }, {
+                "command": "paket.AddToCurrent",
+                "title": "Paket: Add NuGet Package (to current project)"
+            }, {
+                "command": "paket.Why",
+                "title": "Paket: Why is a packge included"
+            }, {
+                "command": "paket.UpdateGroup",
+                "title": "Paket: Update Group"
+            }, {
+                "command": "paket.UpdatePackage",
+                "title": "Paket: Update NuGet Package "
+            }, {
+                "command": "paket.UpdatePackageCurrent",
+                "title": "Paket: Update NuGet Package (from current project)"
+            }, {
+                "command": "paket.RemovePackage",
+                "title": "Paket: Remove NuGet Package "
+            }, {
+                "command": "paket.RemovePackageCurrent",
+                "title": "Paket: Remove NuGet Package (from current project)"
+            },
+            {
+                "command": "paket.GenerateIncludeScripts",
+                "title": "Paket: Generate Include Scripts"
+            },
+            {
+                "command": "paket.UpdatePaketToPrerelease",
+                "title": "Paket: Use Paket prerelease"
+            }
+        ],
+        "outputChannels": [
+            "Paket"
+        ],
+        "configuration": {
 
-			"type": "object",
-			"title": "Paket configuration",
-			"properties": {
-				"Paket.autoshow": {
-					"type": "boolean",
-					"default": true,
-					"description": "Automatically shows Paket output panel"
-				},
-				"Paket.autoInstall": {
-					"type": "boolean",
-					"default": false,
-					"description": "Automatically runs Paket Install on paket.dependencies and paket.references save"
-				}
-			}
-		}
+            "type": "object",
+            "title": "Paket configuration",
+            "properties": {
+                "Paket.autoshow": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically shows Paket output panel"
+                },
+                "Paket.autoInstall": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Automatically runs Paket Install on paket.dependencies and paket.references save"
+                }
+            }
+        }
 
-	},
-	"activationEvents": [
-		"onLanguage:paket-dependencies",
-		"onLanguage:paket-lock",
-		"onLanguage:paket-references",
-    	"onCommand:paket.Init",
-		"onCommand:paket.Install",
-		"onCommand:paket.Update",
-		"onCommand:paket.Outdated",
-		"onCommand:paket.Restore",
-		"onCommand:paket.AutoRestoreOn",
-		"onCommand:paket.AutoRestoreOff",
-		"onCommand:paket.ConvertFromNuget",
-		"onCommand:paket.Simplify",
-		"onCommand:paket.Add",
-		"onCommand:paket.AddToCurrent",
-		"onCommand:paket.UpdateGroup",
-		"onCommand:paket.UpdatePackage",
-		"onCommand:paket.UpdatePackageCurrent",
-		"onCommand:paket.RemovePackage",
-		"onCommand:paket.RemovePackageCurrent",
-		"onCommand:paket.UpdatePaketToPrerelease",
-		"onCommand:paket.GenerateIncludeScripts"
-	],
-	"dependencies": {
-	}
+    },
+    "activationEvents": [
+        "onLanguage:paket-dependencies",
+        "onLanguage:paket-lock",
+        "onLanguage:paket-references",
+        "onCommand:paket.Init",
+        "onCommand:paket.Install",
+        "onCommand:paket.Update",
+        "onCommand:paket.Outdated",
+        "onCommand:paket.Restore",
+        "onCommand:paket.AutoRestoreOn",
+        "onCommand:paket.AutoRestoreOff",
+        "onCommand:paket.ConvertFromNuget",
+        "onCommand:paket.Simplify",
+        "onCommand:paket.Add",
+        "onCommand:paket.AddToCurrent",
+        "onCommand:paket.UpdateGroup",
+        "onCommand:paket.UpdatePackage",
+        "onCommand:paket.UpdatePackageCurrent",
+        "onCommand:paket.RemovePackage",
+        "onCommand:paket.RemovePackageCurrent",
+        "onCommand:paket.UpdatePaketToPrerelease",
+        "onCommand:paket.GenerateIncludeScripts"
+    ],
+    "dependencies": {}
 }

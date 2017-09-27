@@ -137,6 +137,12 @@ let Add () =
         if JS.isDefined n then sprintf "add nuget %s" n  |> spawnPaket)
     |> ignore
 
+let Why () =
+    (vscode.window.showInputBox inputOptions)
+    |> Promise.map (fun n ->
+        if JS.isDefined n then sprintf "why %s" n  |> spawnPaket)
+    |> ignore
+
 let AddToCurrent () =
     let fn = vscode.window.activeTextEditor.document.fileName
     if isProject fn then
@@ -415,6 +421,7 @@ let activate (context: vscode.ExtensionContext) =
     registerCommand "paket.ConvertFromNuget" ConvertFromNuget
     registerCommand "paket.Simplify" Simplify
     registerCommand "paket.Add" Add
+    registerCommand "paket.Why" Why
     registerCommand "paket.AddToCurrent" AddToCurrent
     registerCommand "paket.UpdateGroup" UpdateGroup
     registerCommand "paket.UpdatePackage" UpdatePackage
