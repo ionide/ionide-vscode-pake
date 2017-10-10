@@ -96,8 +96,8 @@
 			"title": "Paket: Remove NuGet Package (from current project)"
 		},
 		{
-			"command": "paket.GenerateIncludeScripts",
-			"title": "Paket: Generate Include Scripts"
+			"command": "paket.GenerateLoadScripts",
+			"title": "Paket: Generate Load Scripts"
 		},
 		{
 			"command": "paket.UpdatePaketToPrerelease",
@@ -147,7 +147,7 @@
 		"onCommand:paket.RemovePackage",
 		"onCommand:paket.RemovePackageCurrent",
 		"onCommand:paket.UpdatePaketToPrerelease",
-		"onCommand:paket.GenerateIncludeScripts"
+		"onCommand:paket.GenerateLoadScripts"
 	],
 	"dependencies": {
 	}
