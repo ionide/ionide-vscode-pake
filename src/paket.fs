@@ -119,7 +119,7 @@ let private handlePaketList (error : ChildProcess.ExecError option, stdout : str
         |> Array.filter((<>) "" )
 
 let Init () = "init" |> spawnPaket
-let GenerateIncludeScripts () = "generate-include-scripts" |> spawnPaket
+let GenerateLoadScripts () = "generate-load-scripts" |> spawnPaket
 let Update () = "update" |> spawnPaket
 let Install () = "install" |> spawnPaket
 let Outdated () = "outdated" |> spawnPaket
@@ -429,6 +429,6 @@ let activate (context: vscode.ExtensionContext) =
     registerCommand "paket.UpdatePackageCurrent" UpdatePackageCurrent
     registerCommand "paket.RemovePackage" RemovePackage
     registerCommand "paket.RemovePackageCurrent" RemovePackageCurrent
-    registerCommand "paket.GenerateIncludeScripts" GenerateIncludeScripts
+    registerCommand "paket.GenerateLoadScripts" GenerateLoadScripts
 
     registerCommand "paket.UpdatePaketToPrerelease" UpdatePaketToAlpha
