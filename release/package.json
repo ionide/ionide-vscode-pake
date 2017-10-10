@@ -75,7 +75,7 @@
 			"title": "Paket: Add NuGet Package"
 		},{
 			"command": "paket.Why",
-			"title": "Paket: Why is a packge included"
+			"title": "Paket: Why is a package included"
 		},{
 			"command": "paket.AddToCurrent",
 			"title": "Paket: Add NuGet Package (to current project)"
