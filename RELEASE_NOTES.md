@@ -1,7 +1,7 @@
 ### 1.8.1 - 26.10.2017
 * Completions for `storage` and `restriction`
 * Add support for `Why` command
-* Update obsolate Paket API calls
+* Update obsolete Paket API calls
 
 ### 1.7.3 - 30.07.2017
 * Update bootstrapper version
