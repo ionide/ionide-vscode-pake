@@ -76,7 +76,7 @@
 			"title": "Paket: AutoRestore Off"
 		},{
 			"command": "paket.ConvertFromNuget",
-			"title": "Paket: Convert From Nuget"
+			"title": "Paket: Convert From NuGet"
 		},{
 			"command": "paket.Simplify",
 			"title": "Paket: Simplify"
