@@ -101,7 +101,7 @@ let private spawnPaket cmd =
         ) |> ignore
 
 let private execPaket cmd = promise {
-    if workspace.rootPath <> null then
+    if isNull workspace.rootPath |> not then
         let! _ = UpdatePaket ()
         return! runWithPaketLocation (fun location ->
             Process.exec location "mono" cmd)

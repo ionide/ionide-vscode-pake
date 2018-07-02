@@ -5,13 +5,10 @@
 #I "packages/build/FAKE/tools"
 #r "packages/build/FAKE/tools/FakeLib.dll"
 open System
-open System.Diagnostics
 open System.IO
 open Fake
 open Fake.Git
-open Fake.ProcessHelper
 open Fake.ReleaseNotesHelper
-open Fake.ZipHelper
 open Fake.YarnHelper
 
 
@@ -45,7 +42,7 @@ let run cmd args dir =
         if not( String.IsNullOrWhiteSpace dir) then
             info.WorkingDirectory <- dir
         info.Arguments <- args
-    ) System.TimeSpan.MaxValue = false then
+    ) System.TimeSpan.MaxValue |> not then
         traceError <| sprintf "Error while running '%s' with args: %s" cmd args
 
 

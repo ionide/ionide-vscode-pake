@@ -13,7 +13,8 @@ github Ionide/ionide-vscode-helpers src/Helpers.fs
 
 group Build
     source https://www.nuget.org/api/v2
+    framework: net472
 
-    nuget FAKE
+    nuget FAKE ~> 4
 
     github fsharp/FAKE modules/Octokit/Octokit.fsx
