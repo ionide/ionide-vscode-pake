@@ -35,7 +35,6 @@ let potentialDirectories =
     [
         vscode.workspace.rootPath
         vscode.workspace.rootPath </> ".paket"
-        pluginBinPath
     ]
 
 let findBinary name =
@@ -45,7 +44,7 @@ let findBinary name =
 
 let pluginPaket = pluginBinPath </> "paket.exe"
 let pluginBootstrapper = pluginBinPath </> "paket.bootstrapper.exe"
-let getPaketPath () = findBinary "paket.exe"
+let getPaketPath () = findBinary "paket.exe" // The paket.exe we want is not in the plugin folder.
 let getBootstrapperPath () = findBinary "paket.bootstrapper.exe"
 
 let outputChannel = vscode.window.createOutputChannel "Paket"
@@ -54,17 +53,18 @@ let getConfig () =
     let cfg = vscode.workspace.getConfiguration()
     cfg.get ("Paket.autoshow", true)
 
-let UpdatePaketSilent () =
-    match getBootstrapperPath () with
-    | Some path -> Process.exec path "mono" ""
-    | None -> Promise.empty
-
 let UpdatePaket () =
-    match getBootstrapperPath () with
-    | Some path ->
-        Process.spawnWithNotification path "mono" "" outputChannel
+    match getBootstrapperPath (), getPaketPath () with
+    | Some bootstrapperPath, _ ->
+        outputChannel.appendLine ("Paket bootstrapper exists at " + bootstrapperPath)
+        Process.spawnWithNotification bootstrapperPath "mono" "" outputChannel
         |> Process.toPromise
-    | None -> Promise.empty
+    | None, Some paketPath ->
+        outputChannel.appendLine ("Paket is in magic mode. Location: " + paketPath)
+        Promise.empty
+    | None, None ->
+        window.showErrorMessage ("Neither Paket nor its bootstrapper were found. It is suggested that you download the Paket bootstrapper and save it as .paket/paket.exe")
+        |> Promise.bind (fun _ -> Promise.empty)
 
 let runWithPaketLocation f =
     match getPaketPath () with
@@ -83,7 +83,7 @@ let private spawnPaket cmd =
         |> Promise.bind (fun _ ->
             runWithPaketLocation (fun location ->
                 outputChannel.clear ()
-                outputChannel.append (location+"\n")
+                outputChannel.appendLine (location)
                 let startedMessage = vscode.window.setStatusBarMessage "Paket started"
                 if getConfig () then outputChannel.show ()
 
