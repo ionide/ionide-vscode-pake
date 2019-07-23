@@ -18,6 +18,10 @@ let (</>) a b =
     then a + @"\" + b
     else a + "/" + b
 
+type PaketPath =
+| Global of string
+| Local of string
+
 let localPaketDir = vscode.workspace.rootPath </> ".paket"
 
 let isProject (fileName:string) = fileName.EndsWith(".fsproj") || fileName.EndsWith(".csproj") || fileName.EndsWith(".vbproj")
@@ -37,6 +41,16 @@ let potentialDirectories =
         vscode.workspace.rootPath </> ".paket"
     ]
 
+let findPaketInPath () =
+    let result = 
+        if Process.isWin() then
+            Process.exec "where" "" "paket"
+        else
+            Process.exec "" "which" "paket"
+    result
+    |> Promise.map (fun (_, out, _) -> out.Split('\n') |> Seq.tryHead |> Option.map (fun x -> PaketPath.Global (x.Trim()) ) )
+
+
 let findBinary name =
     potentialDirectories
     |> List.map (fun dir -> dir </> name)
@@ -44,7 +58,15 @@ let findBinary name =
 
 let pluginPaket = pluginBinPath </> "paket.exe"
 let pluginBootstrapper = pluginBinPath </> "paket.bootstrapper.exe"
-let getPaketPath () = findBinary "paket.exe" // The paket.exe we want is not in the plugin folder.
+
+let getPaketPath () = promise {
+    let localPaketPath = findBinary "paket.exe" // The paket.exe we want is not in the plugin folder.
+    
+    match localPaketPath with
+    | Some paketPath -> return Some (PaketPath.Local paketPath)
+    | None -> return! findPaketInPath()
+}
+
 let getBootstrapperPath () = findBinary "paket.bootstrapper.exe"
 
 let outputChannel = vscode.window.createOutputChannel "Paket"
@@ -53,26 +75,33 @@ let getConfig () =
     let cfg = vscode.workspace.getConfiguration()
     cfg.get ("Paket.autoshow", true)
 
-let UpdatePaket () =
-    match getBootstrapperPath (), getPaketPath () with
+let UpdatePaket () = promise {
+    let! paketPath = getPaketPath () 
+    match getBootstrapperPath (), paketPath with
     | Some bootstrapperPath, _ ->
         outputChannel.appendLine ("Paket bootstrapper exists at " + bootstrapperPath)
-        Process.spawnWithNotification bootstrapperPath "mono" "" outputChannel
-        |> Process.toPromise
-    | None, Some paketPath ->
+        return! Process.spawnWithNotification bootstrapperPath "mono" "" outputChannel
+                |> Process.toPromise
+    | None, Some (PaketPath.Local paketPath) ->
         outputChannel.appendLine ("Paket is in magic mode. Location: " + paketPath)
-        Promise.empty
+        return! Promise.empty
+    | None, Some (PaketPath.Global paketPath) ->
+        outputChannel.appendLine ("Paket is in path. Location: " + paketPath)
+        return! Promise.empty
     | None, None ->
-        window.showErrorMessage ("Neither Paket nor its bootstrapper were found. It is suggested that you download the Paket bootstrapper and save it as .paket/paket.exe")
-        |> Promise.bind (fun _ -> Promise.empty)
+        return! window.showErrorMessage ("Neither Paket nor its bootstrapper were found. It is suggested that you download the Paket bootstrapper and save it as .paket/paket.exe")
+                |> Promise.bind (fun _ -> Promise.empty)
+}
 
-let runWithPaketLocation f =
-    match getPaketPath () with
-    | Some location ->
-        f location
+let runWithPaketLocation f = promise {
+    let! paketPath = getPaketPath () 
+    match paketPath with
+    | Some pp ->
+        return! f pp
     | None ->
-        vscode.window.showErrorMessage "Unable to find paket.exe"
-        |> Promise.bind (fun _ -> Promise.reject "Unable to find paket.exe")
+        return! vscode.window.showErrorMessage "Unable to find paket.exe"
+                |> Promise.bind (fun _ -> Promise.reject "Unable to find paket.exe")
+}
 
 let private spawnPaket cmd =
     if isNull workspace.rootPath then
@@ -81,13 +110,22 @@ let private spawnPaket cmd =
     else
         UpdatePaket ()
         |> Promise.bind (fun _ ->
-            runWithPaketLocation (fun location ->
+            runWithPaketLocation (fun packetPath ->
+                let (spawnPaket, location) = 
+                    match packetPath, Process.isWin() with
+                    | PaketPath.Local location, _ ->
+                        (Process.spawnWithNotification location "mono", location)
+                    | PaketPath.Global location, true ->
+                        (Process.spawnWithNotification location "", location)
+                    | PaketPath.Global location, false ->
+                        (Process.spawnWithNotification "" location, location)
+
                 outputChannel.clear ()
                 outputChannel.appendLine (location)
                 let startedMessage = vscode.window.setStatusBarMessage "Paket started"
                 if getConfig () then outputChannel.show ()
 
-                Process.spawnWithNotification location "mono" cmd outputChannel
+                spawnPaket cmd outputChannel
                 |> Process.onExit(fun code _ ->
                     startedMessage.dispose() |> ignore
                     if code.ToString() ="0" then
@@ -103,8 +141,14 @@ let private spawnPaket cmd =
 let private execPaket cmd = promise {
     if isNull workspace.rootPath |> not then
         let! _ = UpdatePaket ()
-        return! runWithPaketLocation (fun location ->
-            Process.exec location "mono" cmd)
+        return! runWithPaketLocation (fun packetPath ->
+            match packetPath, Process.isWin() with
+            | PaketPath.Local location, _ ->
+                Process.exec location "mono" cmd
+            | PaketPath.Global location, true ->
+                Process.exec location "" cmd 
+            | PaketPath.Global location, false ->
+                Process.exec "" location cmd )
     else
         window.showErrorMessage("Paket can be run only if folder is open")
         |> ignore
