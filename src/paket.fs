@@ -18,6 +18,37 @@ let (</>) a b =
     then a + @"\" + b
     else a + "/" + b
 
+module Proc =
+    open Fable.Import.JS
+    module node = Fable.Import.Node.Exports
+
+    let exec location cmd : Promise<ExecError option * string * string> =
+        let options = createEmpty<ExecOptions>
+        options.cwd <- Some workspace.rootPath
+
+        Promise.Create<ExecError option * string * string>(fun resolve error ->
+            node.childProcess.exec(location + " " + cmd, options,
+                (fun (e : ExecError option) (i : U2<string, Buffer.Buffer>) (o : U2<string, Buffer.Buffer>) ->
+                    // As we don't specify an encoding, the documentation specifies that we'll receive strings
+                    // "By default, Node.js will decode the output as UTF-8 and pass strings to the callback"
+                    let arg = e, unbox<string> i, unbox<string> o
+                    resolve.Invoke(U2.Case1 arg))) |> ignore)
+
+    let spawn exe (cmd : string) =
+        let cmd' = Process.splitArgs cmd |> ResizeArray
+
+        let options =
+            createObj [
+                "cwd" ==> workspace.rootPath
+            ]
+        node.childProcess.spawn(exe, cmd', options)
+
+    let spawnWithNotification exe (cmd : string) (outputChannel : OutputChannel) =
+        spawn exe cmd
+        |> Process.onOutput(fun e -> e.toString () |> outputChannel.append)
+        |> Process.onError (fun e -> e.ToString () |> outputChannel.append)
+        |> Process.onErrorOutput(fun e -> e.toString () |> outputChannel.append)
+
 type PaketPath =
 | Global of string
 | Local of string
@@ -41,6 +72,21 @@ let potentialDirectories =
         vscode.workspace.rootPath </> ".paket"
     ]
 
+let findPaketWithBash () = 
+    if Process.isWin() then Promise.lift None
+    else 
+        Process.exec "" "/bin/bash" "-c \"type paket\""
+        |> Promise.map (fun (_, out, _) -> 
+            out.Split('\n') 
+            |> Seq.tryHead 
+            |> Option.bind (fun line  ->
+                let path = 
+                    line.Split([|" is "|], StringSplitOptions.RemoveEmptyEntries) 
+                    |> Seq.last
+                    |> fun x -> x.Trim()
+                if (path.Length > 0) then Some (PaketPath.Global path)
+                else None))
+
 let findPaketInPath () =
     let result = 
         if Process.isWin() then
@@ -48,7 +94,20 @@ let findPaketInPath () =
         else
             Process.exec "" "which" "paket"
     result
-    |> Promise.map (fun (_, out, _) -> out.Split('\n') |> Seq.tryHead |> Option.map (fun x -> PaketPath.Global (x.Trim()) ) )
+    |> Promise.bind (fun (_, out, _) -> promise {
+        let path =
+            out.Split('\n') 
+            |> Seq.tryHead 
+            |> Option.bind (fun line  ->
+                let path = line.Trim()
+                if (path.Length > 0) then Some (PaketPath.Global path)
+                else None)
+        match path with
+        | Some p -> return Some p
+        | None -> 
+            // In some cases, which is not returning paket from PATH, then try with bash type
+            return! findPaketWithBash()
+    })
 
 
 let findBinary name =
@@ -112,13 +171,12 @@ let private spawnPaket cmd =
         |> Promise.bind (fun _ ->
             runWithPaketLocation (fun packetPath ->
                 let (spawnPaket, location) = 
-                    match packetPath, Process.isWin() with
-                    | PaketPath.Local location, _ ->
+                    match packetPath with
+                    | PaketPath.Local location ->
                         (Process.spawnWithNotification location "mono", location)
-                    | PaketPath.Global location, true ->
-                        (Process.spawnWithNotification location "", location)
-                    | PaketPath.Global location, false ->
-                        (Process.spawnWithNotification "" location, location)
+                    | PaketPath.Global location ->
+                        // When global tool is used, no mono prefix
+                        (Proc.spawnWithNotification location, location)
 
                 outputChannel.clear ()
                 outputChannel.appendLine (location)
@@ -142,13 +200,12 @@ let private execPaket cmd = promise {
     if isNull workspace.rootPath |> not then
         let! _ = UpdatePaket ()
         return! runWithPaketLocation (fun packetPath ->
-            match packetPath, Process.isWin() with
-            | PaketPath.Local location, _ ->
+            match packetPath with
+            | PaketPath.Local location->
                 Process.exec location "mono" cmd
-            | PaketPath.Global location, true ->
-                Process.exec location "" cmd 
-            | PaketPath.Global location, false ->
-                Process.exec "" location cmd )
+            | PaketPath.Global location ->
+                // When global tool is used, no mono prefix
+                Proc.exec location cmd)
     else
         window.showErrorMessage("Paket can be run only if folder is open")
         |> ignore
