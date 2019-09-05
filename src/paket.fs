@@ -31,6 +31,27 @@ let pluginPath =
 
 let pluginBinPath = pluginPath </> "bin"
 
+let getEnvVar var =
+    match Environment.GetEnvironmentVariable(var) with
+    | null -> None
+    | value -> Some value
+
+// See https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools#install-a-global-tool for Windows and Linux/macOS values
+let addGlobalToolPath list =
+    let getGlobalToolSubPath root =
+        root </> ".dotnet" </> "tools"
+    let pathOption  =
+        match Process.isWin() with
+        | true  ->
+            getEnvVar "USERPROFILE"
+            |> Option.map getGlobalToolSubPath
+        | false  ->
+            getEnvVar "HOME"
+            |> Option.map getGlobalToolSubPath
+    pathOption
+    |> Option.map (fun p -> p :: list)
+    |> Option.defaultValue list
+
 let potentialDirectories =
     [
         vscode.workspace.rootPath
@@ -39,6 +60,7 @@ let potentialDirectories =
 
 let findBinary name =
     potentialDirectories
+    |> addGlobalToolPath
     |> List.map (fun dir -> dir </> name)
     |> List.tryFind (U2.Case1 >> fs.existsSync)
 
